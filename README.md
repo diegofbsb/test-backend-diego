@@ -125,7 +125,7 @@ Você precisará conteinerizar sua API e outros componentes usados no formato de
 
 ### Artefato, Processo e Data Limite de Entrega
 
-Para participar, basta fazer um pull request neste repositório incluindo um subdiretório em [participantes](./participantes) com os seguintes arquivos:
+Para participar, basta fazer um pull request a partir de um fork deste repositório incluindo um subdiretório em [participantes](./participantes) com os seguintes arquivos:
 
 - `docker-compose.yml` - arquivo interpretável por `docker-compose` contendo a declaração dos serviços que compõe sua API respeitando as [restrições de CPU/memória](#restricoes) e [arquitetura mínima](#arquitetura).
 - `README.md` - incluindo pelo menos seu nome, tecnologias que usou e o link para o repositório do código fonte da sua API.

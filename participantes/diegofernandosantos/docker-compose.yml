@@ -1,0 +1,98 @@
+version: "3.9"
+
+services:
+
+  # ============================================================
+  # 1) LOAD BALANCER - NGINX (porta 9999)
+  # ============================================================
+  load-balancer:
+    image: nginx:alpine
+    container_name: rinha_nginx
+    ports:
+      - "9999:9999"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api01
+      - api02
+    networks:
+      - rinha-net
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: "40M"
+
+  # ============================================================
+  # 2) POSTGRES
+  # ============================================================
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_rinha
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rinha
+    ports:
+      - "5432:5432"
+    networks:
+      - rinha-net
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "0.20"
+          memory: "50M"
+
+  # ============================================================
+  # 3) API INSTANCIA 01
+  # ============================================================
+  api01:
+    build: .
+    container_name: backend_rinha_01
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    expose:
+      - "8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - rinha-net
+    deploy:
+      resources:
+        limits:
+          cpus: "0.60"
+          memory: "230M"
+
+  # ============================================================
+  # 4) API INSTANCIA 02
+  # ============================================================
+  api02:
+    build: .
+    container_name: backend_rinha_02
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    expose:
+      - "8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - rinha-net
+    deploy:
+      resources:
+        limits:
+          cpus: "0.60"
+          memory: "230M"
+
+networks:
+  rinha-net:
+    driver: bridge
